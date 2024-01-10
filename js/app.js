@@ -1,5 +1,9 @@
 function iniciarApp(){
+
     const selectCategorias =document.querySelector("#categorias");
+    selectCategorias.addEventListener("change",mostrarReceta);
+    const resultado=document.querySelector("#resultado");
+
     obtenerCategorias();
 
     function obtenerCategorias(){
@@ -18,5 +22,52 @@ function iniciarApp(){
         })
     }
 
+    function mostrarReceta(e){
+        const receta = e.target.value;
+        const url =`https://www.themealdb.com/api/json/v1/1/filter.php?c=${receta}`;
+        
+        fetch(url)
+            .then(respuesta => respuesta.json())
+            .then(resultado => mostrarPlatillos(resultado.meals))
+    }
+
+    function mostrarPlatillos(platillos =[]){
+        platillos.forEach( platillo =>{
+            const {idMeal,strMeal,strMealThumb} = platillo;
+
+            const recetaContenedor=document.createElement("div");
+            recetaContenedor.classList.add("col-md-4");
+
+            const recetaCard=document.createElement("div");
+            recetaCard.classList.add("card","mb-4");
+
+            const recetaImagen=document.createElement("img");
+            recetaImagen.classList.add("card-img-top");
+            recetaImagen.alt=`Imagen receta de la ${strMeal}`;
+            recetaImagen.src=strMealThumb;
+
+            const recetaCardBody=document.createElement("div");
+            recetaCardBody.classList.add("card-body");
+
+            const recetaHeading=document.createElement("h3");
+            recetaHeading.classList.add("card-title","mb-3");
+            recetaHeading.textContent=strMeal;
+
+            const recetaButton=document.createElement("button");
+            recetaButton.classList.add("btn","btn-danger","w-100");
+            recetaButton.textContent="Ver Receta";
+
+            //insertar el html
+            recetaCardBody.appendChild(recetaHeading);
+            recetaCardBody.appendChild(recetaButton);
+
+            recetaCard.appendChild(recetaImagen);
+            recetaCard.appendChild(recetaCardBody);
+
+            recetaContenedor.appendChild(recetaCard);
+
+            resultado.appendChild(recetaContenedor);
+        })
+    }
 }
 document.addEventListener("DOMContentLoaded",iniciarApp);
