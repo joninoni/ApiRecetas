@@ -32,6 +32,7 @@ function iniciarApp(){
     }
 
     function mostrarPlatillos(platillos =[]){
+        limpiarHtml();
         platillos.forEach( platillo =>{
             const {idMeal,strMeal,strMealThumb} = platillo;
 
@@ -69,5 +70,12 @@ function iniciarApp(){
             resultado.appendChild(recetaContenedor);
         })
     }
+
+    function limpiarHtml(){
+        while (resultado.firstChild) {
+            resultado.removeChild(resultado.firstChild);
+        }
+    }
+
 }
 document.addEventListener("DOMContentLoaded",iniciarApp);
