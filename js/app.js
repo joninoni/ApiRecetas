@@ -33,7 +33,10 @@ function iniciarApp(){
 
     function mostrarPlatillos(platillos =[]){
         limpiarHtml(resultado);
-        
+        const heading=document.createElement("h2");
+        heading.classList.add("text-center","my-5","text-black");
+        heading.textContent=platillos.length ?`${platillos.length} Resultados`:"No se encontraron resultados";
+        resultado.appendChild(heading);
         platillos.forEach( platillo =>{
             const {idMeal,strMeal,strMealThumb} = platillo;
 
@@ -58,6 +61,12 @@ function iniciarApp(){
             const recetaButton=document.createElement("button");
             recetaButton.classList.add("btn","btn-danger","w-100");
             recetaButton.textContent="Ver Receta";
+            recetaButton.dataset.bsTarget="#modal";
+            recetaButton.dataset.bsToggle="modal"
+            recetaButton.onclick=function(){
+                obtenerPlatillo(idMeal);
+
+            }
 
             //insertar el html
             recetaCardBody.appendChild(recetaHeading);
@@ -75,9 +84,7 @@ function iniciarApp(){
     function obtenerPlatillo(id){
         const receta=id;
         const url=`https://themealdb.com/api/json/v1/1/lookup.php?i=${receta}`;
-        fetch(url)
-            .then(respuesta => respuesta.json())
-            .then(resultado =>mostrarPlatillo(resultado.meals))
+        console.log(url);
     }
 
     function limpiarHtml(selector){
