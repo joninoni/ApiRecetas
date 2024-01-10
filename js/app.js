@@ -32,7 +32,8 @@ function iniciarApp(){
     }
 
     function mostrarPlatillos(platillos =[]){
-        limpiarHtml();
+        limpiarHtml(resultado);
+        
         platillos.forEach( platillo =>{
             const {idMeal,strMeal,strMealThumb} = platillo;
 
@@ -71,9 +72,17 @@ function iniciarApp(){
         })
     }
 
-    function limpiarHtml(){
-        while (resultado.firstChild) {
-            resultado.removeChild(resultado.firstChild);
+    function obtenerPlatillo(id){
+        const receta=id;
+        const url=`https://themealdb.com/api/json/v1/1/lookup.php?i=${receta}`;
+        fetch(url)
+            .then(respuesta => respuesta.json())
+            .then(resultado =>mostrarPlatillo(resultado.meals))
+    }
+
+    function limpiarHtml(selector){
+        while (selector.firstChild) {
+            selector.removeChild(selector.firstChild);
         }
     }
 
