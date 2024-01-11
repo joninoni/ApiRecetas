@@ -92,8 +92,7 @@ function iniciarApp(){
     }
 
     function mostrarPlatillo(receta){
-        console.log(receta);
-        const {idMeal,strInstructions,strMeal,strMealThumb,strIngredient,strMeasure} =receta;
+        const {idMeal,strInstructions,strMeal,strMealThumb}=receta;
         const modalTitle=document.querySelector(".modal .modal-title");
         const modalBody=document.querySelector(".modal .modal-body");
 
@@ -147,7 +146,9 @@ function iniciarApp(){
         const btnCerrar=document.createElement("button");
         btnCerrar.classList.add("btn","btn-secondary","col");
         btnCerrar.textContent="Cerrar";
-        
+        btnCerrar.onclick=function(){
+            modal.hide();
+        }
 
         botones.appendChild(btnFavorito);
         botones.appendChild(btnCerrar);
