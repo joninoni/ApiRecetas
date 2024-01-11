@@ -142,6 +142,15 @@ function iniciarApp(){
         const btnFavorito=document.createElement("button");
         btnFavorito.classList.add("btn","btn-danger","col");
         btnFavorito.textContent="Guardar Favorito";
+        btnFavorito.onclick=function(){
+            
+            guardarFavorito({
+                //pasamos solo lo que vamos a necesitar del arreglo
+                id:idMeal,
+                title:strMeal,
+                img:strMealThumb,
+            });
+        }
 
         const btnCerrar=document.createElement("button");
         btnCerrar.classList.add("btn","btn-secondary","col");
@@ -154,6 +163,11 @@ function iniciarApp(){
         botones.appendChild(btnCerrar);
         
         modal.show();
+    }
+
+    function guardarFavorito(receta){
+        const favoritos=JSON.parse(localStorage.getItem("favoritos")) ?? [];//operador de colision nula o indefinido
+        localStorage.setItem("favoritos",JSON.stringify([...favoritos,receta]));
     }
 
     function limpiarHtml(selector){
