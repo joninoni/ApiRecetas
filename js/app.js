@@ -2,7 +2,10 @@ function iniciarApp(){
 
     const selectCategorias =document.querySelector("#categorias");
     selectCategorias.addEventListener("change",mostrarReceta);
+
     const resultado=document.querySelector("#resultado");
+
+    const modal =new bootstrap.Modal("#modal",{});
 
     obtenerCategorias();
 
@@ -65,7 +68,6 @@ function iniciarApp(){
             recetaButton.dataset.bsToggle="modal"
             recetaButton.onclick=function(){
                 obtenerPlatillo(idMeal);
-
             }
 
             //insertar el html
@@ -84,7 +86,73 @@ function iniciarApp(){
     function obtenerPlatillo(id){
         const receta=id;
         const url=`https://themealdb.com/api/json/v1/1/lookup.php?i=${receta}`;
-        console.log(url);
+        fetch(url)
+            .then(resultado => resultado.json())
+            .then(respuesta => mostrarPlatillo(respuesta.meals[0]))
+    }
+
+    function mostrarPlatillo(receta){
+        console.log(receta);
+        const {idMeal,strInstructions,strMeal,strMealThumb,strIngredient,strMeasure} =receta;
+        const modalTitle=document.querySelector(".modal .modal-title");
+        const modalBody=document.querySelector(".modal .modal-body");
+
+        limpiarHtml(modalBody);//Limpia las recetas anteriores que se mostraron en el modal
+        modalTitle.textContent=strMeal;
+
+        const imagen=document.createElement("img");
+        imagen.classList.add("img-fluid");
+        imagen.src=strMealThumb;
+        imagen.alt=`Receta de ${strMeal}`;
+
+        const hedingModal=document.createElement("h3");
+        hedingModal.classList.add("my-3");
+        hedingModal.textContent="Instrucciones";
+
+        const instrucciones=document.createElement("p");
+        instrucciones.textContent=strInstructions;
+
+        const ingredientesCantidades=document.createElement("h3");
+        ingredientesCantidades.classList.add("my-3");
+        ingredientesCantidades.textContent="Ingredientes y Cantidades";
+        
+        modalBody.appendChild(imagen);
+        modalBody.appendChild(hedingModal);
+        modalBody.appendChild(instrucciones);
+        modalBody.appendChild(ingredientesCantidades);
+        
+        const ul=document.createElement("ul");
+        ul.classList.add("list-group");
+        for(let i=1;i<=20;i++){
+            if(receta[`strIngredient${i}`]){
+                const ingrediente=receta[`strIngredient${i}`];
+                const cantidad=receta[`strMeasure${i}`];
+
+                const li=document.createElement("li");
+                li.classList.add("list-group-item");
+                li.textContent=`${ingrediente} - ${cantidad}`;
+
+                ul.appendChild(li);
+                modalBody.appendChild(ul)
+            }
+        }
+        const botones=document.querySelector(".modal-footer");
+        limpiarHtml(botones)//limpia los botones previos
+
+        //botones de guardar favorito y cerrar
+        const btnFavorito=document.createElement("button");
+        btnFavorito.classList.add("btn","btn-danger","col");
+        btnFavorito.textContent="Guardar Favorito";
+
+        const btnCerrar=document.createElement("button");
+        btnCerrar.classList.add("btn","btn-secondary","col");
+        btnCerrar.textContent="Cerrar";
+        
+
+        botones.appendChild(btnFavorito);
+        botones.appendChild(btnCerrar);
+        
+        modal.show();
     }
 
     function limpiarHtml(selector){
