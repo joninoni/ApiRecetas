@@ -1,13 +1,20 @@
 function iniciarApp(){
-
     const selectCategorias =document.querySelector("#categorias");
-    selectCategorias.addEventListener("change",mostrarReceta);
-
-    const resultado=document.querySelector("#resultado");
-
+    const favoritosDiv=document.querySelector(".favoritos");
     const modal =new bootstrap.Modal("#modal",{});
+    const resultado=document.querySelector("#resultado");
+    const heading=document.createElement("h2");
 
-    obtenerCategorias();
+    if (selectCategorias) {
+        selectCategorias.addEventListener("change",mostrarReceta);
+        obtenerCategorias();
+    }
+
+    if (favoritosDiv) {
+        obtenerFavoritos();
+    }
+
+   
 
     function obtenerCategorias(){
         const url=`https://www.themealdb.com/api/json/v1/1/categories.php`;
@@ -33,10 +40,10 @@ function iniciarApp(){
             .then(respuesta => respuesta.json())
             .then(resultado => mostrarPlatillos(resultado.meals))
     }
-
+   
     function mostrarPlatillos(platillos =[]){
         limpiarHtml(resultado);
-        const heading=document.createElement("h2");
+       
         heading.classList.add("text-center","my-5","text-black");
         heading.textContent=platillos.length ?`${platillos.length} Resultados`:"No se encontraron resultados";
         resultado.appendChild(heading);
@@ -51,15 +58,15 @@ function iniciarApp(){
 
             const recetaImagen=document.createElement("img");
             recetaImagen.classList.add("card-img-top");
-            recetaImagen.alt=`Imagen receta de la ${strMeal}`;
-            recetaImagen.src=strMealThumb;
+            recetaImagen.alt=`Imagen receta de la ${strMeal ?? platillo.titulo}`;
+            recetaImagen.src=strMealThumb ?? platillo.img;
 
             const recetaCardBody=document.createElement("div");
             recetaCardBody.classList.add("card-body");
 
             const recetaHeading=document.createElement("h3");
             recetaHeading.classList.add("card-title","mb-3");
-            recetaHeading.textContent=strMeal;
+            recetaHeading.textContent=strMeal ?? platillo.title;
 
             const recetaButton=document.createElement("button");
             recetaButton.classList.add("btn","btn-danger","w-100");
@@ -67,7 +74,7 @@ function iniciarApp(){
             recetaButton.dataset.bsTarget="#modal";
             recetaButton.dataset.bsToggle="modal"
             recetaButton.onclick=function(){
-                obtenerPlatillo(idMeal);
+                obtenerPlatillo(idMeal ?? platillo.id);
             }
 
             //insertar el html
@@ -141,12 +148,13 @@ function iniciarApp(){
         //botones de guardar favorito y cerrar
         const btnFavorito=document.createElement("button");
         btnFavorito.classList.add("btn","btn-danger","col");
-
         btnFavorito.onclick=function(){//damos click en boton
-
             if (existeStorage(idMeal)) {//validamos si la receta existe
                 eliminarFavorito(idMeal);//eliminamos de localStorage
-                btnFavorito.textContent="Guardar Favorito";//cambiamos texto del boton
+                btnFavorito.textContent='Guardar Favorito';//cambiamos texto del boton
+                mostrarToast("Eliminado De Favoritos");
+                modal.hide()
+                return;
             }
                 guardarFavorito({
                     //pasamos solo lo que vamos a necesitar del arreglo
@@ -155,7 +163,8 @@ function iniciarApp(){
                     img:strMealThumb,
                 }); 
 
-                btnFavorito.textContent="Eliminar de favoritos";     
+                btnFavorito.textContent='Eliminar de favoritos';
+                mostrarToast("Receta Agregada A Favoritos");
         }
 
         const btnCerrar=document.createElement("button");
@@ -185,9 +194,34 @@ function iniciarApp(){
     function eliminarFavorito(id){
         const favoritos=JSON.parse(localStorage.getItem("favoritos")) ?? [];
         const nuevosFavoritos =favoritos.filter(favorito => favorito.id !==id);
-        localStorage.setItem("favoritos",JSON.stringify(nuevosFavoritos))
+        localStorage.setItem("favoritos",JSON.stringify(nuevosFavoritos));
+        if (favoritosDiv) {
+            mostrarPlatillos(nuevosFavoritos)    
+        }
+    }
+
+    function mostrarToast(mensaje){
+        const divToast=document.querySelector("#toast");
+        const bodyToast=document.querySelector(".toast-body");
+
+        const toast = new bootstrap.Toast(divToast);
+        bodyToast.textContent=mensaje;
+
+        toast.show();
     }
  
+    function obtenerFavoritos(){
+        const favoritos=JSON.parse(localStorage.getItem("favoritos")) ?? [];
+        if(favoritos.length){
+            mostrarPlatillos(favoritos);
+            heading.textContent=`${favoritos.length} Favoritos`;
+            return
+        }
+        heading.classList.add("fs-4","text-center","font-bold","mt-5");
+        heading.textContent="No hay favoritos aun";
+        favoritosDiv.appendChild(heading);
+    }
+
     function limpiarHtml(selector){
         while (selector.firstChild) {
             selector.removeChild(selector.firstChild);
